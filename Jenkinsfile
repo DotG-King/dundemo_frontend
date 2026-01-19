@@ -68,6 +68,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                sh 'cd dundemo'
                 sh 'npm install'
             }
         }
