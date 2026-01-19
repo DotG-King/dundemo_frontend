@@ -138,7 +138,6 @@ pipeline {
                     def distributionId = sh(
                         script: """
                             aws resourcegroupstaggingapi get-resources \
-                                --region ${AWS_REGION} \
                                 --resource-type-filters cloudfront:distribution \
                                 --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_distribution \
                                 --query 'ResourceTagMappingList[0].ResourceARN' \
