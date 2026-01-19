@@ -25,9 +25,7 @@ pipeline {
                 }
             }
         }
-    }
 
-    stages {
         stage('Checkout Git Branch') {
             when() {
                 expression { env.GIT_BRANCH == MAIN_BRANCH || env.GIT_BRANCH == DEVELOP_BRANCH }
