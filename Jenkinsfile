@@ -68,35 +68,40 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'cd dundemo'
-                sh 'npm install'
+                dir ('dundemo') {
+                    sh 'npm install'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                dir ('dundemo') {
+                    sh 'npm run build'
+                }
             }
         }
 
         stage('Upload to S3') {
             steps {
-                script {
-                    def bucketName = sh(
-                        returnStdout: true,
-                        script: """
-                            aws resourcegroupstaggingapi get-resources \
-                                --resource-type-filters s3 \
-                                --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_bucket \
-                                --query 'ResourceTagMappingList[0].ResourceARN' \
-                                --output text
-                        """
-                    ).trim()
+                dir ('dundemo') {
+                    script {
+                        def bucketName = sh(
+                            returnStdout: true,
+                            script: """
+                                aws resourcegroupstaggingapi get-resources \
+                                    --resource-type-filters s3 \
+                                    --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_bucket \
+                                    --query 'ResourceTagMappingList[0].ResourceARN' \
+                                    --output text
+                            """
+                        ).trim()
 
-                    if(bucketName) {
-                        env.S3_BUCKET = bucketName.split(':')[-1]
-                        echo "Found S3 bucket : ${env.S3_BUCKET}"
-                        sh "aws s3 sync dist/ s3://${env.S3_BUCKET} --delete --region ${AWS_REGION}"
+                        if(bucketName) {
+                            env.S3_BUCKET = bucketName.split(':')[-1]
+                            echo "Found S3 bucket : ${env.S3_BUCKET}"
+                            sh "aws s3 sync dist/ s3://${env.S3_BUCKET} --delete --region ${AWS_REGION}"
+                        }
                     }
                 }
             }
