@@ -5,7 +5,11 @@ pipeline {
         MAIN_BRANCH = 'main'
         DEVELOP_BRANCH = 'dev'
         AWS_REGION = 'ap-northeast-2'
-        TF_WORKSPACE = (env.GIT_BRANCH == MAIN_BRANCH) ? 'prod' : 'dev'
+        if (env.GIT_BRANCH == MAIN_BRANCH) {
+            TF_WORKSPACE = 'prod'
+        } else {
+            TF_WORKSPACE = 'dev'
+        }
     }
 
     tools {
