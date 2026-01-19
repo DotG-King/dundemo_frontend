@@ -5,15 +5,26 @@ pipeline {
         MAIN_BRANCH = 'main'
         DEVELOP_BRANCH = 'dev'
         AWS_REGION = 'ap-northeast-2'
-        if (env.GIT_BRANCH == MAIN_BRANCH) {
-            TF_WORKSPACE = 'prod'
-        } else {
-            TF_WORKSPACE = 'dev'
-        }
     }
 
     tools {
         nodejs 'NodeJS'
+    }
+
+    stages {
+        stage('Set WorkSpace') {
+            steps {
+                echo 'Clean Workspace'
+                cleanWs()
+                script {
+                    if (env.GIT_BRANCH == MAIN_BRANCH) {
+                        env.TF_WORKSPACE = 'prod'
+                    } else {
+                        env.TF_WORKSPACE = 'dev'
+                    }
+                }
+            }
+        }
     }
 
     stages {
@@ -23,8 +34,6 @@ pipeline {
             }
 
             steps {
-                echo 'Clean Workspace'
-                cleanWs()
                 echo 'Checkout Git Branch and Clone Start'
                 checkout([$class: 'GitSCM',
                          branches: [[name: env.GIT_BRANCH]],
@@ -77,7 +86,7 @@ pipeline {
                     def bucketName = sh(
                         returnStdout: true,
                         script: """
-                            aws resourcegroupstaggingapi get-resource \
+                            aws resourcegroupstaggingapi get-resources \
                                 --resource-type-filters s3 \
                                 --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_bucket \
                                 --query 'ResourceTagMappingList[0].ResourceARN' \
@@ -88,7 +97,7 @@ pipeline {
                     if(bucketName) {
                         env.S3_BUCKET = bucketName.split(':')[-1]
                         echo "Found S3 bucket : ${env.S3_BUCKET}"
-                        sh "aws s3 sync ${PROJECT_PATH}/dist/ s3://${bucketName} --delete --region ${AWS_REGION}"
+                        sh "aws s3 sync dist/ s3://${env.S3_BUCKET} --delete --region ${AWS_REGION}"
                     }
                 }
             }
@@ -128,7 +137,7 @@ pipeline {
                                 --region ${AWS_REGION} \
                                 --resource-type-filters cloudfront:distribution \
                                 --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_distribution \
-                                --query 'ResourceTagMappingList[0].ResourceARN'
+                                --query 'ResourceTagMappingList[0].ResourceARN' \
                                 --output text | awk -F/ '{print \$2}'
                         """,
                         returnStdout: true
@@ -136,7 +145,7 @@ pipeline {
 
                     if (distributionId) {
                         echo "Found CloudFront distribution: ${distributionId}"
-                        sh "aws cloudfront create-invalidation --distribution-id ${distributionId} --paths '/*' --region ${AWS_REGION}"
+                        sh "aws cloudfront create-invalidation --distribution-id ${distributionId} --paths '/*'"
                     } else {
                         error "CloudFront distribution not found"
                     }
