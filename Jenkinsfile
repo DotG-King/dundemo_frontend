@@ -19,8 +19,10 @@ pipeline {
                 script {
                     if (env.GIT_BRANCH == MAIN_BRANCH) {
                         env.TF_WORKSPACE = 'prod'
+                        env.VITE_BUILD_MODE = 'production'
                     } else {
                         env.TF_WORKSPACE = 'dev'
+                        env.VITE_BUILD_MODE = 'development'
                     }
                 }
             }
@@ -77,7 +79,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir ('dundemo') {
-                    sh 'npm run build'
+                    sh 'npm run build -- --mode ${VITE_BUILD_MODE}'
                 }
             }
         }
