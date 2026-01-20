@@ -147,7 +147,7 @@ pipeline {
                         // """,
                         script: """
                             aws cloudfront list-distributions \
-                                --query 'DistributionList.Items[?Comment=='dundemo_dev_front_distribution'].Id | [0]' \
+                                --query 'DistributionList.Items[?Comment=="dundemo_dev_front_distribution"].Id | [0]' \
                                 --output text
                         """,
                         returnStdout: true
