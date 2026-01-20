@@ -138,18 +138,11 @@ pipeline {
             steps {
                 script {
                     def distributionId = sh(
-                        // script: """
-                        //     aws resourcegroupstaggingapi get-resources \
-                        //         --resource-type-filters cloudfront:distribution \
-                        //         --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_distribution \
-                        //         --query 'ResourceTagMappingList[0].ResourceARN' \
-                        //         --output text | awk -F/ '{print \$2}'
-                        // """,
-                        script: '''
+                        script: """
                             aws cloudfront list-distributions \
-                                --query 'DistributionList.Items[?Comment=='dundemo_${TF_WORKSPACE}_front_distribution'].Id | [0]' \
+                                --query "DistributionList.Items[?Comment=='dundemo_${TF_WORKSPACE}_front_distribution'].Id | [0]" \
                                 --output text
-                        ''',
+                        """,
                         returnStdout: true
                     ).trim()
 
