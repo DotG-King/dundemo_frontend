@@ -1,0 +1,54 @@
+.character-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+.character-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 16px;
+  object-fit: cover;
+}
+
+.character-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.character-name {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.server-adventure {
+  margin: 4px 0;
+  color: #666;
+}
+
+.fame {
+  margin: 8px 0;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.raid-counts {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.raid-counts p {
+  margin: 0;
+}

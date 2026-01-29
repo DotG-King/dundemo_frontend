@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Title from "./components/Title";
+import Category from "./components/Category";
+import Refresh from "./components/Refresh";
+import SearchBar from "./components/SearchBar";
+import Footer from "./components/Footer";
+
+import { useSearch } from "./hooks/searchHooks";
+
+import "./css/App.css";
+import CharacterCard from "./components/CharacterCard";
+import AdventureResult from "./components/AdventureResult";
+
+export default function App() {
+  const [searchCategory, setSearchCategory] = useState<"adventure" | "character">("character");
+  const { characterCards, adventureClearCount, loading, error, executeSearch, refresh } = useSearch();
+  
+  const handelSearch = (params: {
+    serverName?: string;
+    characterName?: string;
+    adventureName?:string;
+  }) => {
+    executeSearch(
+      searchCategory,
+      params.serverName || "",
+      params.characterName || "",
+      params.adventureName || ""
+    );
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="App">
+      <Title />
+      <Category
+        selectedCategory={searchCategory}
+        onCategoryChange={setSearchCategory}
+      />
+      <Refresh
+        selectedCategory={searchCategory}
+        onRefresh={refresh}
+      />
+      <SearchBar
+        category={searchCategory}
+        onSearch={handelSearch}
+        loading={loading}
+      />
+      {loading && <div>로딩 중...</div>}
+      {error && (
+        <div className="error">
+          <p>{error}</p>
+        </div>
+      )}
+      {searchCategory === "character" &&
+        !loading &&
+        characterCards &&
+        characterCards.length > 0 && (
+          <CharacterCard character={characterCards[0]} />
+        )}
+      {searchCategory === "adventure" &&
+        !loading &&
+        adventureClearCount && (
+          <AdventureResult adventureData={adventureClearCount} />       )}
+      {searchCategory === "adventure" &&
+        !loading &&
+        characterCards &&
+        characterCards.map((char, index) => (
+          <CharacterCard key={index} character={char} />
+        ))}
+      <Footer />
+    </div>
+  );
 }
-
-export default App
