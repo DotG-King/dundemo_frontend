@@ -95,7 +95,6 @@ pipeline {
                                     --resource-type-filters s3 \
                                     --tag-filters Key=Name,Values=dundemo_${TF_WORKSPACE}_front_bucket \
                                     --tag-filters Key=Environment,Values=${TF_WORKSPACE} \
-                                    --tag-filters Key=Type,Values=front \
                                     --query 'ResourceTagMappingList[0].ResourceARN' \
                                     --output text
                             """
